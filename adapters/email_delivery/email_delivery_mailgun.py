@@ -5,7 +5,7 @@ from adapters.email_delivery.mailgun_wrapper import (
     create_subdomain_on_eds, delete_subdomain_on_eds,
     subdomain_exists_on_eds, verify_domain_on_eds,
     create_user_on_eds, delete_user_on_eds,
-    get_users_on_eds
+    get_users_on_eds, send_email_on_eds
 )
 
 class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
@@ -29,3 +29,11 @@ class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
     
     def get_users(self, domain: str) -> List[str]:
         return get_users_on_eds(domain)
+    
+    def send_email(self, from_email: str, to_email: str, subject: str, body: str) -> bool:
+        return send_email_on_eds(
+            from_email,
+            to_email,
+            subject,
+            body
+        )

@@ -6,20 +6,20 @@ Run locally
 - Start server (dev): `python main.py`
 - Docs: visit `http://127.0.0.1:8000/docs`
 
-Endpoints (stubs)
-- POST /v1/inbox
-  - Body: { user, subdomain, domain }
-  - Note: Domain must be registered with the platform to be used
+Endpoints
 
-- POST /v1/email
-  - Body: { to: string[], subject: string, body: string, inbox_id?: string, in_reply_to_id?: string }
+## Domain
+- Registering a domain / subdomain
+- Verifying a domain
+- Deleting a domain / subdomain
 
-- GET /v1/email?id={id}
-  - Returns the email with the given id
+## Inbox
+- Create an inbox
+- List all inboxes
+- Delete an inbox
+- Get inbox from email
 
-- GET /v1/email/thread?id={id}
-  - Returns the thread for the email with id
-
-Notes
-- These endpoints are stubbed and return placeholder data
-- CORS is open for local development; tighten for production
+## Email
+- Send an email
+- Receive emails
+- Get emails w/ filters

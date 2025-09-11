@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from typing import Literal, Optional
 
@@ -10,3 +12,11 @@ class DNSRecord(BaseModel):
     
     def __repr__(self) -> str:
         return f"DNSRecord(name={self.name}, priority={self.priority}, record_type={self.record_type}, value={self.value})"
+
+
+class EmailRecord(BaseModel):
+    from_email: str
+    to_email: str
+    subject: str
+    body: str
+    message_time: datetime
