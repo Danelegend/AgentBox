@@ -50,7 +50,7 @@ class EmailService(IEmailService):
         to_email: str,
         subject: str,
         body: str
-    ): 
+    ):
         logger.info(f"Sending email from {self.email} to {to_email}")
         email_sent = self.email_delivery.send_email(
             self.email,

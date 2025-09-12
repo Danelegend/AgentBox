@@ -82,6 +82,9 @@ class DomainService(IDomainService):
         else:
             raise NotImplementedError("Setting up apex is not implemented")
         
+        # Setup inbound email processing on this domain
+        self.email_delivery.setup_inbound_email_processing(domain)
+        
         return RegisterDomainResult(
             domain=domain,
             status="verified" if domain_valid else "pending"

@@ -5,8 +5,11 @@ from adapters.email_delivery.mailgun_wrapper import (
     create_subdomain_on_eds, delete_subdomain_on_eds,
     subdomain_exists_on_eds, verify_domain_on_eds,
     create_user_on_eds, delete_user_on_eds,
-    get_users_on_eds, send_email_on_eds
+    get_users_on_eds, send_email_on_eds,
+    set_inbound_email_webhook
 )
+
+MAILGUN_WEBHOOK_URL = "https://5fe101026482.ngrok-free.app/mailgun/webhooks/inbound"
 
 class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
     def create_subdomain(self, subdomain: str, domain: str) -> List[DNSRecord]:
@@ -37,3 +40,6 @@ class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
             subject,
             body
         )
+    
+    def setup_inbound_email_processing(self, domain: str) -> bool:
+        return set_inbound_email_webhook(domain, MAILGUN_WEBHOOK_URL)

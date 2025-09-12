@@ -29,4 +29,7 @@ def send_email_on_eds(
         domain=domain
     )
     
+    if req.status_code != 200:
+        logger.error(f"Failed to send email, resp={req.json()}")
+    
     return req.status_code == 200
