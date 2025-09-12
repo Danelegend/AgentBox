@@ -22,9 +22,48 @@ class CSVStorage(StoragePort):
         file_path = os.path.join(self.folder_loc, filename)
 
         if _does_file_exist(file_path):
-            raise FileExistsError(f"Table '{table_name}' already exists.")
+            # Existing table: validate header matches expected schema and ensure schema file exists
+            expected_header = list(schema.keys())
+            header = _read_csv_header(file_path)
 
-        # Save schema alongside the table (for type restoration on read)
+            if header is None or len(header) == 0:
+                # Empty file: initialize with expected header
+                _create_csv_file(file_path, expected_header)
+            else:
+                if header != expected_header:
+                    raise ValueError(
+                        f"Existing CSV header for table '{table_name}' does not match provided schema. "
+                        f"existing={header} expected={expected_header}"
+                    )
+
+            # Ensure schema sidecar exists and matches expected types
+            schema_path = file_path + ".schema"
+            if os.path.exists(schema_path):
+                existing_schema: Dict[str, str] = {}
+                with open(schema_path) as f:
+                    for line in f:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        col, typ_name = line.split(":", 1)
+                        existing_schema[col] = typ_name
+
+                expected_types = {col: typ.__name__ for col, typ in schema.items()}
+                if existing_schema != expected_types:
+                    raise ValueError(
+                        f"Existing schema for table '{table_name}' does not match provided schema. "
+                        f"existing={existing_schema} expected={expected_types}"
+                    )
+            else:
+                with open(schema_path, "w") as f:
+                    for col, typ in schema.items():
+                        f.write(f"{col}:{typ.__name__}\n")
+
+            # Register file path and return without error
+            self.files[table_name] = file_path
+            return
+
+        # New table: create file with header and schema
         _create_csv_file(file_path, list(schema.keys()))
         
         self.files[table_name] = file_path
@@ -86,6 +125,16 @@ def _create_csv_file(file_path: str, keys: List[str]):
     with open(file_path, mode="w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=keys)
         writer.writeheader()
+
+
+def _read_csv_header(file_path: str) -> List[str] | None:
+    """Read the header row (field names) from an existing CSV file."""
+    try:
+        with open(file_path, mode="r", newline="") as file:
+            reader = csv.reader(file)
+            return next(reader, None)
+    except FileNotFoundError:
+        return None
 
 
 def _serialize_value(value: SUPPORTED_TYPES) -> str:
