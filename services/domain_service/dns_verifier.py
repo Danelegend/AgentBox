@@ -3,7 +3,7 @@ import threading
 import time
 
 from pydantic import BaseModel, Field
-from typing import Dict, Callable, Optional, List
+from typing import Dict, Callable, Optional, List, Literal
 from enum import Enum
 
 from adapters import EmailDeliveryPort
@@ -54,9 +54,9 @@ class PendingDomain(BaseModel):
 
 class DnsVerifier:
     def __init__(
-        self, 
+        self,
         email_delivery: EmailDeliveryPort,
-        check_interval: int = 30
+        check_interval: int = 10
     ):
         self.email_delivery = email_delivery
         self.check_interval = check_interval
@@ -65,6 +65,12 @@ class DnsVerifier:
         self._verification_timer: Optional[threading.Timer] = None
         self._timer_lock = threading.Lock()
         self._shutdown = threading.Event()
+    
+    def get_domain_status(self, domain: str) -> Optional[Literal["verified", "pending"]]:
+        if domain in self.pending_domains:
+            status = self.pending_domains[domain].status
+            return "verified" if status == VerificationStatus.VERIFIED else "pending"
+        return None
     
     def add_pending_dns_verification(
         self, 
@@ -128,7 +134,7 @@ class DnsVerifier:
         
         self._verification_timer.daemon = True
         self._verification_timer.start()
-        logger.debug(f"Started DNS verification timer (interval={self.check_interval}s)")
+        logger.info(f"Started DNS verification timer (interval={self.check_interval}s)")
     
     def _verification_cycle(self):
         """Main verification cycle - runs periodically"""
@@ -146,7 +152,7 @@ class DnsVerifier:
                     self._start_verification_timer()
                 else:
                     self._verification_timer = None
-                    logger.debug("Stopped DNS verification timer (no pending domains)")
+                    logger.info("Stopped DNS verification timer (no pending domains)")
         except Exception as e:
             logger.error(f"Error in verification cycle: {e}", exc_info=True)
             # Restart timer even on error
@@ -156,6 +162,7 @@ class DnsVerifier:
     def _verify_domains(self):
         """Verify all pending domains"""
         now = datetime.datetime.now()
+        logger.info(f"Verifying domains at {now}")
         domains_to_process = []
         
         # Collect domains that need processing

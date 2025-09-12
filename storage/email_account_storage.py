@@ -1,10 +1,10 @@
 """
 Used to save email accounts
 """
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
-from storage_manager import StorageManager
+from storage import StorageManager
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,7 +42,19 @@ class EmailAccountStorage:
         pass
 
     def get_email_address(self, inbox_id: str) -> str:
-        pass
+        entries = self.storage_manager.get_entry(
+            EMAIL_ACCOUNT_TABLE_NAME,
+            "email_id",
+            inbox_id
+        )
+        
+        if len(entries) == 0:
+            return None
+
+        if len(entries) > 1:
+            logger.warn(f"Multiple ids for {inbox_id} found, amount={len(entries)}")
+
+        return entries[0].email
 
     def get_inbox_id(self, email: str) -> Optional[str]:
         entries = self.storage_manager.get_entry(

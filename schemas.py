@@ -1,21 +1,29 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
 # --------- REQUESTS ---------
+class CreateDomainRequest(BaseModel):
+    domain: str
+
 class CreateInboxRequest(BaseModel):
     email: EmailStr
 
 
-class CreateInboxSessionRequest(BaseModel):
-    ttl: int = Field(..., default=3600)
-
+class SendEmailRequest(BaseModel):
+    inbox_id: str
+    to_email: EmailStr
+    subject: str
+    body: str
 
 # --------- RESPONSES --------
+class CreateDomainResponse(BaseModel):
+    domain: str
+    status: Literal["pending", "verified"]
+
 class CreateInboxResponse(BaseModel):
     id: str
-    session_token: str
     message: str
 
 

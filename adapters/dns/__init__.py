@@ -1,7 +1,7 @@
 from adapters.dns.dns import DnsPort
-from adapters.dns.dns_porkbun import PorkbunDnsAdapter
+from adapters.dns.compose import build_dns
 
 __all__ = [
     "DnsPort",
-    "PorkbunDnsAdapter"
+    "build_dns"
 ]

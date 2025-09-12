@@ -1,4 +1,5 @@
-from .domain_service import IDomainService, build_domain_service
+from .domain_service import IDomainService
+from .compose import build_domain_service
 
 __all__ = [
     'IDomainService',

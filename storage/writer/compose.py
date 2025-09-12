@@ -1,10 +1,9 @@
 from typing import Literal
 
-from storage import StoragePort
-from storage.csv_storage import CSVStorage
+from .storage_port import StoragePort
+from .csv_storage import CSVStorage
 
 STORAGE_OPTIONS = Literal['CSV']
-
 
 def _build_csv_storage(folder_loc: str = '') -> CSVStorage:
     if folder_loc == '':

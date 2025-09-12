@@ -1,7 +1,7 @@
 from adapters.email_delivery.email_delivery import EmailDeliveryPort
-from adapters.email_delivery.email_delivery_mailgun import MailgunEmailDeliveryAdapter
+from adapters.email_delivery.compose import build_email_delivery
 
 __all__ = [
     "EmailDeliveryPort",
-    "MailgunEmailDeliveryAdapter"
+    "build_email_delivery",
 ]

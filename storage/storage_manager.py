@@ -1,7 +1,7 @@
 from typing import Dict, List, Any, Type, Optional
 from pydantic import BaseModel
 
-from storage.table import Table, build_table
+from storage.table import Table, build_table, TableConfig
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,7 +25,13 @@ class StorageManager:
             return False
         
         try:
-            table = build_table(table_name, table)
+            table = build_table(
+                table_name, 
+                table,
+                TableConfig(
+                    primary_id_column=primary_id_column
+                )
+            )
             self.tables[table_name] = table
         except ValueError as e:
             logger.error(f"Error creating table {table_name}, e={str(e)}")
@@ -54,9 +60,7 @@ class StorageManager:
         """
         Given a column and value, gets all records that match
         """
-        table = self._get_table(table_name)
-
-        entries = table.read_entries()
+        entries = self.read_entries(table)
 
         results = []
 
@@ -71,5 +75,5 @@ class StorageManager:
     def _get_table(self, table_name: str) -> Table:
         if table_name not in self.tables:
             raise ValueError("Table not found")
-        
+
         return self.tables[table_name]

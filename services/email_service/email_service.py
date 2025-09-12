@@ -1,9 +1,9 @@
 from adapters import EmailDeliveryPort
-from storage import InboxStorage
+from storage import InboxStorageManager, EmailAccountStorage
 
 from common_types import EmailRecord
 
-from typing import Protocol, Callable
+from typing import Protocol, Callable, List
 from datetime import datetime
 
 import logging
@@ -29,13 +29,21 @@ class IEmailService(Protocol):
 class EmailService(IEmailService):
     def __init__(
         self,
-        email: str,
+        inbox_id: str,
         email_delivery: EmailDeliveryPort,
-        inbox_storage: InboxStorage
+        inbox_storage_manager: InboxStorageManager,
+        email_account_storage: EmailAccountStorage
     ):
-        self.email = email
+        logger.info(f"Initializing email service for {inbox_id}")
+        self.inbox_id = inbox_id
         self.email_delivery = email_delivery
-        self.storage = inbox_storage
+                
+        # Load the email from inbox_id
+        self.email = email_account_storage.get_email_address(inbox_id)
+        logger.info(f"Email loaded for {inbox_id} with email={self.email}")
+
+        self.storage = inbox_storage_manager.get_or_create_inbox_storage(self.email)
+        logger.info(f"Email service initialized for {inbox_id}")
 
     def send_email(
         self,

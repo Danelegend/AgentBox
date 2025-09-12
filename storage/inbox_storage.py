@@ -7,7 +7,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from storage_manager import StorageManager
+from storage import StorageManager
 
 class InboxSchema(BaseModel):
     email: str # Key for the inbox to associate this with
@@ -25,7 +25,7 @@ class InboxStorageManager:
 
         self.storages: Dict[str, 'InboxStorage'] = {}
 
-    def get_or_create_inbox_storage(email: str):
+    def get_or_create_inbox_storage(self, email: str):
         if email not in self.storages:
             self.storages[email] = InboxStorage(email, self.storage_manager)
 

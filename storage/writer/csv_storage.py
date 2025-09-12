@@ -1,5 +1,4 @@
-from storage import StoragePort
-from storage.storage_port import SUPPORTED_TYPES
+from .storage_port import StoragePort, SUPPORTED_TYPES
 
 from typing import Dict, List
 from datetime import datetime
@@ -11,6 +10,8 @@ class CSVStorage(StoragePort):
     def __init__(self, folder_loc: str):
         self.folder_loc = folder_loc
         os.makedirs(folder_loc, exist_ok=True)
+        
+        self.files: Dict[str, str] = {}
 
     def create_table(self, table_name: str, schema: Dict[str, type[SUPPORTED_TYPES]]):
         """
@@ -25,6 +26,8 @@ class CSVStorage(StoragePort):
 
         # Save schema alongside the table (for type restoration on read)
         _create_csv_file(file_path, list(schema.keys()))
+        
+        self.files[table_name] = file_path
 
         schema_path = file_path + ".schema"
         with open(schema_path, "w") as f:
@@ -35,8 +38,7 @@ class CSVStorage(StoragePort):
         """
         Insert a new row into the CSV table.
         """
-        filename = f"{table_name}.csv"
-        file_path = os.path.join(self.folder_loc, filename)
+        file_path = self.files[table_name]
 
         if not _does_file_exist(file_path):
             raise FileNotFoundError(f"Table '{table_name}' does not exist.")
@@ -50,11 +52,10 @@ class CSVStorage(StoragePort):
         Read all rows from the CSV table as list of dicts.
         Restores types using the stored schema if available.
         """
-        filename = f"{table_name}.csv"
-        file_path = os.path.join(self.folder_loc, filename)
+        file_path = self.files[table_name]
 
         if not _does_file_exist(file_path):
-            raise FileNotFoundError(f"Table '{table_name}' does not exist.")
+            raise FileNotFoundError(f"Table {table_name} does not exist.")
 
         # Try to load schema
         schema_path = file_path + ".schema"

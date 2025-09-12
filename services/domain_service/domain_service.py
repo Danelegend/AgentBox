@@ -59,6 +59,15 @@ class DomainService(IDomainService):
         """
         Create the domain on the DNS and EDS
         """
+        # Check the status of the domain
+        domain_status = self.dns_verifier.get_domain_status(domain)
+        
+        if domain_status:
+            return RegisterDomainResult(
+                domain=domain,
+                status=domain_status
+            )
+        
         sub, apex = split_domain(domain)
 
         # Can we see the apex DNS
@@ -144,13 +153,3 @@ class DomainService(IDomainService):
         
         # Already exists
         return True
-
-
-def build_domain_service(
-    email_delivery: EmailDeliveryPort,
-    dns: DnsPort
-) -> IDomainService:
-    return DomainService(
-        email_delivery,
-        dns
-    )

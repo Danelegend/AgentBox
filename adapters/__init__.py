@@ -1,9 +1,9 @@
-from adapters.dns import DnsPort, PorkbunDnsAdapter
-from adapters.email_delivery import EmailDeliveryPort, MailgunEmailDeliveryAdapter
+from adapters.dns import DnsPort, build_dns
+from adapters.email_delivery import EmailDeliveryPort, build_email_delivery
 
 __all__ = [
     "DnsPort",
-    "PorkbunDnsAdapter",
+    "build_dns",
     "EmailDeliveryPort",
-    "MailgunEmailDeliveryAdapter"
+    "build_email_delivery"
 ]

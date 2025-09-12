@@ -29,6 +29,4 @@ def send_email_on_eds(
         domain=domain
     )
     
-    print(req.json())
-    
     return req.status_code == 200

@@ -1,7 +1,7 @@
 from storage.writer import compose, STORAGE_OPTIONS
 from storage.writer import SUPPORTED_TYPES
 
-from typing import Any, List, Type
+from typing import Any, List, Type, Optional
 from pydantic import BaseModel
 
 import uuid
@@ -77,10 +77,14 @@ def build_table(table_name: str, table: Type[BaseModel], config: TableConfig) ->
     """
     Helper to build a CSV-backed table at /data.
     """
+    import os
+    
+    folder_loc = os.path.join(os.getcwd(), "data")
+    
     return Table(
         table_name=table_name,
         table=table,
         storage_type="CSV",
         table_config=config,
-        folder_loc="/data",
+        folder_loc=folder_loc,
     )

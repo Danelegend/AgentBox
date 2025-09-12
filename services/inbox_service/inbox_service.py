@@ -53,6 +53,7 @@ class InboxService(IInboxService):
         self.email_account_storage = email_account_storage
     
     def create_inbox(self, email: str) -> CreateInboxResult:
+        logger.info(f"Creating inbox for {email}")
         local, domain = parse_email(email)
         sub, apex = split_domain(domain)
 
@@ -62,6 +63,8 @@ class InboxService(IInboxService):
         
         # Create user
         inbox_id = _create_user_email(local, domain, self.email_delivery, self.email_account_storage)
+
+        logger.info(f"Inbox created for {email} with id={inbox_id}")
 
         return CreateInboxResult(
             id=inbox_id,
