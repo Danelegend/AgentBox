@@ -6,16 +6,20 @@ from adapters.email_delivery.mailgun_wrapper import (
     subdomain_exists_on_eds, verify_domain_on_eds,
     create_user_on_eds, delete_user_on_eds,
     get_users_on_eds, send_email_on_eds,
-    set_inbound_email_webhook
+    set_inbound_email_webhook,
+    delete_routes
 )
 
-MAILGUN_WEBHOOK_URL = "https://5fe101026482.ngrok-free.app/mailgun/webhooks/inbound"
+MAILGUN_WEBHOOK_URL = "https://ba6fdf7f950f.ngrok-free.app/mailgun/webhooks/inbound"
 
 class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
     def create_subdomain(self, subdomain: str, domain: str) -> List[DNSRecord]:
         return create_subdomain_on_eds(subdomain, domain)
 
     def delete_subdomain(self, subdomain: str, domain: str) -> bool:
+        # Delete routes on the subdomain
+        delete_routes(subdomain + "." + domain)
+        
         return delete_subdomain_on_eds(subdomain, domain)
 
     def subdomain_exists(self, subdomain: str, domain: str) -> bool:
@@ -33,7 +37,7 @@ class MailgunEmailDeliveryAdapter(EmailDeliveryPort):
     def get_users(self, domain: str) -> List[str]:
         return get_users_on_eds(domain)
     
-    def send_email(self, from_email: str, to_email: str, subject: str, body: str) -> bool:
+    def send_email(self, from_email: str, to_email: str, subject: str, body: str) -> str:
         return send_email_on_eds(
             from_email,
             to_email,

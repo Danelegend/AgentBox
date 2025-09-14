@@ -15,7 +15,7 @@ def get_inbox_service(request: Request) -> IInboxService:
     return request.app.state.inbox_service
 
 def get_email_service(request: Request, inbox_id: str) -> IEmailService:
-    return request.app.state.email_service_provider.get(
+    return request.app.state.email_service_provider.get_by_inbox_id(
         inbox_id
     )
 
@@ -100,3 +100,36 @@ async def send_email(
         raise HTTPException(status_code=400, detail=str(e))
     
     return {"message": "Email sent"}
+
+@router.get(
+    "/inbox/{inbox_id}"
+)
+async def get_inbox(
+    request: Request,
+    inbox_id: str,
+    unread_only: bool = False,
+    limit: int = 10,
+    offset: int = 0,
+    filter: Optional[str] = None
+):
+    email_service = get_email_service(request, inbox_id)
+    
+    emails = email_service.get_emails()
+    
+    return GetInboxResponse(
+        emails=[
+            EmailRecord(
+                sender=email.from_email,
+                recipient=email.to_email,
+                subject=email.subject,
+                body=email.body,
+                metadata=EmailRecordMetadata(
+                    opened=False,
+                    thread_id="-1"
+                ),
+                timestamp=email.message_time
+            ) for email in emails
+        ]
+    )
+
+    

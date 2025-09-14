@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Literal, Optional
 
 
@@ -20,3 +20,12 @@ class EmailRecord(BaseModel):
     subject: str
     body: str
     message_time: datetime
+
+class IncomingEmailRecord(BaseModel):
+    message_id: str
+    sender: EmailStr
+    recipient: EmailStr
+    subject: str
+    body: str
+    reply_id: str
+    timestamp: datetime

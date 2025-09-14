@@ -15,7 +15,8 @@ from adapters.email_delivery.mailgun_wrapper.email import (
     send_email_on_eds
 )
 from adapters.email_delivery.mailgun_wrapper.webhook import (
-    set_inbound_email_webhook
+    set_inbound_email_webhook,
+    delete_routes
 )
 
 
@@ -30,5 +31,6 @@ __all__ = [
     "delete_user_on_eds",
     "send_email_on_eds",
     "get_users_on_eds",
-    "set_inbound_email_webhook"
+    "set_inbound_email_webhook",
+    "delete_routes"
 ]

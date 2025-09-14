@@ -31,3 +31,18 @@ class CreateInboxSessionResponse(BaseModel):
     session_token: str
     expires_at: datetime
     message: str
+
+class EmailRecordMetadata(BaseModel):
+    opened: bool
+    thread_id: str
+
+class EmailRecord(BaseModel):
+    sender: EmailStr
+    recipient: EmailStr
+    subject: str
+    body: str
+    metadata: EmailRecordMetadata
+    timestamp: datetime
+
+class GetInboxResponse(BaseModel):
+    emails: List[EmailRecord]

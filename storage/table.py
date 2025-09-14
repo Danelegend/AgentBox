@@ -1,7 +1,7 @@
 from storage.writer import compose, STORAGE_OPTIONS
 from storage.writer import SUPPORTED_TYPES
 
-from typing import Any, List, Type, Optional
+from typing import Any, List, Type, Optional, get_origin, get_args, Union
 from pydantic import BaseModel
 
 import uuid
@@ -69,8 +69,20 @@ def _validate_schema(schema: Type[BaseModel]):
     """
     allowed_types = SUPPORTED_TYPES.__args__  # expands union
     for name, field in schema.model_fields.items():
-        if field.annotation not in allowed_types:
-            raise ValueError(f"Unsupported type {field.annotation} for field '{name}'")
+        ann = field.annotation
+        origin = get_origin(ann)
+        args = get_args(ann)
+        
+        if origin is Union: # Eg. Optional[int] == Union[int, None]
+            non_none_args = [a for a in args if a is not type(None)]
+            if not non_none_args:
+                raise ValueError(f"Unsupported type {ann} for field '{name}'")
+            
+            for t in non_none_args:
+                if t not in allowed_types:
+                    raise ValueError(f"Unsupported type {t} for field '{name}'")
+        elif ann not in allowed_types:
+            raise ValueError(f"Unsupported type {ann} for field '{name}'")
 
 
 def build_table(table_name: str, table: Type[BaseModel], config: TableConfig) -> Table:

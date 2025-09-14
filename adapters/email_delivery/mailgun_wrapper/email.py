@@ -11,7 +11,7 @@ def send_email_on_eds(
     subject: str, 
     body: str,
     cc: List[str] = []
-) -> bool:
+) -> str:
     client = get_client()
     
     data = {
@@ -31,5 +31,9 @@ def send_email_on_eds(
     
     if req.status_code != 200:
         logger.error(f"Failed to send email, resp={req.json()}")
+        raise Exception(f"Failed to send email, resp={req.json()}")
     
-    return req.status_code == 200
+    data = req.json()
+    email_id = data["id"]
+    
+    return email_id
