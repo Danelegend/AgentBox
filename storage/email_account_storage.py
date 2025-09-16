@@ -1,7 +1,7 @@
 """
 Used to save email accounts
 """
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from pydantic import BaseModel
 
 from storage import StorageManager
@@ -38,8 +38,9 @@ class EmailAccountStorage:
 
         return result.email_id
 
-    def get_inboxes(self) -> List[str]:
-        pass
+    def get_inboxes(self) -> List[Tuple[str, str]]:
+        entries = self.storage_manager.read_entries(EMAIL_ACCOUNT_TABLE_NAME)
+        return [(entry.email_id, entry.email) for entry in entries]
 
     def get_email_address(self, inbox_id: str) -> str:
         entries = self.storage_manager.get_entry(

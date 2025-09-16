@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional, Literal
 
 from pydantic import BaseModel, EmailStr, Field
+from common_types import InboxRecord
 
 # --------- REQUESTS ---------
 class CreateDomainRequest(BaseModel):
@@ -12,7 +13,6 @@ class CreateInboxRequest(BaseModel):
 
 
 class SendEmailRequest(BaseModel):
-    inbox_id: str
     to_email: EmailStr
     subject: str
     body: str
@@ -46,3 +46,6 @@ class EmailRecord(BaseModel):
 
 class GetInboxResponse(BaseModel):
     emails: List[EmailRecord]
+
+class ListInboxesResponse(BaseModel):
+    inboxes: List[InboxRecord]

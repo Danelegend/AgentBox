@@ -8,6 +8,7 @@ from services.errors import (
     UserNotFoundError
 )
 from util.domain_utils import parse_email, split_domain
+from common_types import InboxRecord
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class IInboxService(Protocol):
         """
         ...
 
-    def list_inboxes(self, domain: Optional[str] = None) -> List[str]:
+    def list_inboxes(self, domain: Optional[str] = None) -> List[InboxRecord]:
         """
         Gets all the inboxes on a given domain
         """
@@ -74,8 +75,13 @@ class InboxService(IInboxService):
     def get_inbox(self, email: str) -> Optional[str]:
         return self.email_account_storage.get_inbox_id(email)
 
-    def list_inboxes(self, domain: Optional[str] = None) -> List[str]:
-        ...
+    def list_inboxes(self, domain: Optional[str] = None) -> List[InboxRecord]:
+        return [
+            InboxRecord(
+                inbox_id=inbox_id,
+                email=email
+            ) for inbox_id, email in self.email_account_storage.get_inboxes()
+        ]
 
     def delete_inbox(self, inbox_id: str) -> bool:
         email = self.email_account_storage.get_email_address(inbox_id)

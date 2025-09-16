@@ -58,9 +58,9 @@ async def delete_domain(
     return result
 
 @router.post(
-    "/inbox",
+    "/inboxes",
     response_model=CreateInboxResponse,
-    summary="Creates an inbox as per the payload, setting up the subdomain if necessary"
+    summary="Creates an inbox on the given domain. Assumes the domain has been setup and verified"
 )
 async def create_inbox(
     payload: CreateInboxRequest,
@@ -80,15 +80,54 @@ async def create_inbox(
         message=result.message
     )
 
+@router.get(
+    "/inboxes",
+    summary="Lists all the inboxes",
+    response_model=ListInboxesResponse
+)
+async def list_inboxes(
+    inbox_service: IInboxService = Depends(get_inbox_service)
+) -> ListInboxesResponse:
+    return ListInboxesResponse(
+        inboxes=[
+            InboxRecord(
+                inbox_id=inbox.inbox_id,
+                email=inbox.email
+            ) for inbox in inbox_service.list_inboxes()
+        ]
+    )
+
+@router.get(
+    "/inboxes/{inbox_id}",
+    summary="Get inbox details"
+)
+async def get_inbox(
+    
+):
+    return {}
+
+@router.delete(
+    "/inboxes/{inbox_id}",
+    summary="Deletes an inbox"
+)
+async def delete_inbox(
+    inbox_id: str,
+    inbox_service: IInboxService = Depends(get_inbox_service)
+):
+    return inbox_service.delete_inbox(inbox_id)
+
+
+
 @router.post(
-    "/email",
-    summary="Sends an email"
+    "/inboxes/{inbox_id}/emails",
+    summary="Sends an email from this inbox"
 )
 async def send_email(
     payload: SendEmailRequest,
+    inbox_id: str,
     request: Request
 ):
-    email_service = get_email_service(request, payload.inbox_id)
+    email_service = get_email_service(request, inbox_id)
     
     try:
         email_service.send_email(
@@ -102,15 +141,12 @@ async def send_email(
     return {"message": "Email sent"}
 
 @router.get(
-    "/inbox/{inbox_id}"
+    "/inboxes/{inbox_id}/emails",
+    summary="List emails in inbox (filters: unread, since, from, to, thread_id, pagination)"
 )
-async def get_inbox(
-    request: Request,
+async def list_emails(
     inbox_id: str,
-    unread_only: bool = False,
-    limit: int = 10,
-    offset: int = 0,
-    filter: Optional[str] = None
+    request: Request
 ):
     email_service = get_email_service(request, inbox_id)
     
@@ -132,4 +168,67 @@ async def get_inbox(
         ]
     )
 
-    
+@router.get(
+    "/inboxes/{inbox_id}/emails/{email_id}",
+    summary="Get all the details of an email"
+)
+async def get_email(
+    inbox_id: str,
+    email_id: str,
+    request: Request
+):
+    return {}
+
+@router.put(
+    "/inboxes/{inbox_id}/emails/{email_id}",
+    summary="Update the status of an email"
+)
+async def update_email(
+    inbox_id: str,
+    email_id: str,
+    request: Request
+):
+    return {}
+
+@router.delete(
+    "/inboxes/{inbox_id}/emails/{email_id}",
+    summary="Delete an email"
+)
+async def delete_email(
+    inbox_id: str,
+    email_id: str,
+    request: Request
+):
+    return {}
+
+@router.get(
+    "/inboxes/{inbox_id}/threads",
+    summary="List all threads in the inbox"
+)
+async def list_thread(
+    inbox_id: str,
+    request: Request
+):
+    pass
+
+@router.get(
+    "/inboxes/{inbox_id}/threads/{thread_id}",
+    summary="Get all the details of a thread"
+)
+async def get_thread(
+    inbox_id: str,
+    thread_id: str,
+    request: Request
+):
+    pass
+
+@router.post(
+    "/inboxes/{inbox_id}/threads/{thread_id}/reply",
+    summary="Reply to a thread by sending a new email"
+)
+async def reply_to_thread(
+    inbox_id: str,
+    thread_id: str,
+    request: Request
+):
+    pass

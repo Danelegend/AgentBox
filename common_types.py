@@ -13,6 +13,9 @@ class DNSRecord(BaseModel):
     def __repr__(self) -> str:
         return f"DNSRecord(name={self.name}, priority={self.priority}, record_type={self.record_type}, value={self.value})"
 
+class InboxRecord(BaseModel):
+    inbox_id: str
+    email: str
 
 class EmailRecord(BaseModel):
     from_email: str
